@@ -1,0 +1,49 @@
+{
+  "name": "spotify-status-widget-ts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:ts": "ts-node src/app.ts",
+    "start": "node dist/app.js",
+    "build": "tsc",
+    "dev": "nodemon --watch src --exec ts-node src/app.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "axios": "^1.11.0",
+    "consolidate": "^1.0.4",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "express-session": "^1.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.18.0",
+    "mongoose": "^8.17.0",
+    "nodemon": "^3.1.10",
+    "nunjucks": "^3.2.4",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "passport-local": "^1.0.0",
+    "passport-spotify": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/consolidate": "^0.14.4",
+    "@types/express": "^5.0.3",
+    "@types/express-session": "^1.18.2",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/mongoose": "^5.11.96",
+    "@types/node": "^24.1.0",
+    "@types/nunjucks": "^3.2.6",
+    "@types/passport": "^1.0.17",
+    "@types/passport-jwt": "^4.0.1",
+    "@types/passport-local": "^1.0.38",
+    "@types/passport-spotify": "^2.0.4",
+    "@types/spotify-api": "^0.0.25",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}

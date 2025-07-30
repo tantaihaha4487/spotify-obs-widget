@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body>
+
+    <div id="song-info" class="flex flex-inline items-center gap-2 text-white text-[24px]"></div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+
+        function fetchCurrentPlaying() {
+            if (token) {
+            fetch('/api/current-playing', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const songInfo = document.getElementById('song-info');
+                if (data.item) {
+                    songInfo.innerHTML = `
+                        <img src="${data.item.album.images[0].url}" width="64" class="rounded">
+                        <h2>${data.item.name}</h2>
+                        <p>${data.item.artists.map(artist => artist.name).join(', ')}</p>
+                    `;
+                } else {
+                    songInfo.innerHTML = '<p>No song currently playing.</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching currently playing song:', error);
+                document.getElementById('song-info').innerHTML = '<p>Error fetching song.</p>';
+            });
+            } else {
+                document.getElementById('song-info').innerHTML = '<p>No token provided.</p>';
+            }
+        }
+
+        setInterval(fetchCurrentPlaying, 2000); // Refresh every 2 seconds
+    </script>
+</body>
+</html>
