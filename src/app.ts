@@ -51,20 +51,13 @@ app.use(express.static(__dirname + '/views'));
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', '*');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     if (req.method === 'OPTIONS') {
         res.status(200).end()
         return
       }
     next();
-});
-
-// Handle error
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  let statusCode = err.status || 500
-  res.status(statusCode)
-  res.render('index.html', { error: err })
 });
 
 app.use(
@@ -150,8 +143,19 @@ passport.use(new JwtStrategy({
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
 app.use('/api', apiRouter)
+// Error handling middleware must be the last `app.use`
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  console.error(err.stack); // Good for debugging
+  const statusCode = err.status || 500;
+  const errorMessage = err.message || 'An internal server error occurred.';
 
-
+  res.status(statusCode);
+  // Send JSON response for API routes, otherwise render an HTML error page
+  if (req.path.startsWith('/api/')) {
+    return res.json({ error: errorMessage });
+  }
+  res.render('index.html', { error: { message: errorMessage } });
+});
 app.listen(port, () => {
   console.log(`Server is running on http://127.0.0.1:${port}`);
 });

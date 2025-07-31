@@ -4,6 +4,12 @@
   "installCommand": "npm install",
   "buildCommand": "npm run vercel-build",
   "devCommand": "npm run dev",
+  "builds": [
+    {
+      "src": "dist/app.js",
+      "use": "@vercel/node"
+    }
+  ],
   "rewrites": [
     {
       "source": "/(.*)",
