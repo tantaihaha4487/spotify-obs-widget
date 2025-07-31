@@ -4,9 +4,9 @@ const router = Router();
 
 router.get('/', function (req, res) {
   if (req.user) {
-    res.render('index.html', { user: req.user });
+    res.render('index.ejs', { user: req.user });
   } else {
-    res.render('index.html', { user: null });
+    res.render('index.ejs', { user: null });
   }
 });
 

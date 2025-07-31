@@ -1,7 +1,6 @@
-{% extends 'layout.html' %}
+<%- include('header.ejs') %>
 
-{% block content %}
-{% if not user %}
+<% if (!user) { %>
 <body class="w-screen h-screen overflow-hidden flex flex-col justify-center items-center gap-y-16 bg-gradient-to-bl from-[#0f172a] via-[#5e5ba6] to-[#0f172a]">
 
     <div id="error-message" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
@@ -30,25 +29,25 @@
     </script>
 
 </body>
-{% else %}
+<% } else { %>
 <body class="w-screen h-screen overflow-hidden flex flex-col justify-center items-center gap-y-12 bg-gradient-to-bl from-[#0f172a] via-[#5e5ba6] to-[#0f172a]">
 
     <div class="w-64 h-64 rounded-full overflow-hidden">
         <img
             class="w-full h-full object-cover"
-            src="{{ user.photos[0].value }}"
+            src="<%= user.photos[0].value %>"
         >
     </div>
     <div class="text-white flex flex-col justify-center items-center">
-        <p class="text-8xl text-bold">{{ user.displayName }}</p>
-        <p class="text-2xl">{{ user.emails[0].value }}</p>
+        <p class="text-8xl text-bold"><%= user.displayName %></p>
+        <p class="text-2xl"><%= user.emails[0].value %></p>
     </div>
     
     <div class="w-full max-w-sm">
         <div class="flex items-center">
             <span class="shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 rounded-s-lg dark:bg-gray-600 dark:text-white dark:border-gray-600">URL</span>
             <div class="relative w-full">
-                <input id="website-url" type="text" aria-describedby="helper-text-explanation" class="bg-gray-50 border border-e-0 border-gray-300 text-gray-500 dark:text-gray-400 text-sm border-s-0 focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500" value="{{ url }}" readonly disabled />
+                <input id="website-url" type="text" aria-describedby="helper-text-explanation" class="bg-gray-50 border border-e-0 border-gray-300 text-gray-500 dark:text-gray-400 text-sm border-s-0 focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500" value="<%= url %>" readonly disabled />
             </div>
             <button data-tooltip-target="tooltip-website-url" data-copy-to-clipboard-target="website-url" class="shrink-0 z-10 inline-flex items-center py-3 px-4 text-sm font-medium text-center text-white bg-blue-700 rounded-e-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 border border-blue-700 dark:border-blue-600 hover:border-blue-800 dark:hover:border-blue-700" type="button">
                 <span id="default-icon">
@@ -70,6 +69,36 @@
         </div>
         <p id="helper-text-explanation" class="mt-2 text-sm text-gray-500 dark:text-gray-400">Paste it in your OBS.</p>
     </div>
+    <script>
+        const copyButton = document.querySelector('[data-copy-to-clipboard-target]');
+        const targetEl = document.getElementById(copyButton.dataset.copyToClipboardTarget);
+        const defaultIcon = document.getElementById('default-icon');
+        const successIcon = document.getElementById('success-icon');
+        const defaultTooltipMessage = document.getElementById('default-tooltip-message');
+        const successTooltipMessage = document.getElementById('success-tooltip-message');
+
+        copyButton.addEventListener('click', () => {
+            targetEl.select();
+            document.execCommand('copy');
+
+            // Change icon
+            defaultIcon.classList.add('hidden');
+            successIcon.classList.remove('hidden');
+
+            // Change tooltip message
+            defaultTooltipMessage.classList.add('hidden');
+            successTooltipMessage.classList.remove('hidden');
+
+            // Reset after 2 seconds
+            setTimeout(() => {
+                defaultIcon.classList.remove('hidden');
+                successIcon.classList.add('hidden');
+                defaultTooltipMessage.classList.remove('hidden');
+                successTooltipMessage.classList.add('hidden');
+            }, 2000);
+        });
+    </script>
 </body>
-{% endif %}
-{% endblock %}
+<% } %>
+
+<%- include('footer.ejs') %>

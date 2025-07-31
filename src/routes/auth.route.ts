@@ -40,7 +40,7 @@ router.get(
 
       // Authentication was successful.
       const fullUrl = `${req.protocol}://${req.get('host')}/api/widget?token=${user.token}`;
-      res.render('index.html',{user: user, url: fullUrl});
+      res.render('index.ejs',{user: user, url: fullUrl});
     })(req, res, next);
   }
 );

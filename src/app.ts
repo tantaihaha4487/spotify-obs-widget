@@ -2,8 +2,6 @@ import 'dotenv/config';
 import express, { Express, Request, Response, NextFunction } from "express";
 import session from "express-session";
 import passport from "passport";
-import consolidate from "consolidate";
-import nunjucks from "nunjucks";
 import { Strategy as SpotifyStrategy, Profile, VerifyCallback } from "passport-spotify";
 import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
 import jwt from 'jsonwebtoken';
@@ -42,11 +40,10 @@ interface UserProfile extends Profile {
 const app: Express = express();
 
 app.set('views', __dirname + '/views');
-nunjucks.configure(__dirname + '/views', { autoescape: true, express: app });
-app.engine('html', consolidate.nunjucks);
-app.set('view engine', 'html');
+app.set('view engine', 'ejs');
 
 app.use(express.static(__dirname + '/views'));
+app.use('/css', express.static(__dirname + '/views/css'));
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');

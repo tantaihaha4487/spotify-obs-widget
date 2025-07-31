@@ -30,7 +30,7 @@ router.get('/now-playing', passport.authenticate('jwt', { session: false }), asy
 
 
 router.get('/widget', (req: Request, res: Response) => {
-    res.render('widget.html');
+    res.render('widget.ejs');
 });
 
 
