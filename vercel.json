@@ -2,7 +2,13 @@
     "version": 2, 
     "rewrites": [
         {
-            "source": "/(.*)", "destination": "/" 
+            "source": "/", "destination": "/" 
+        },
+        {
+            "source": "/auth/(.*)", "destination": "/auth" 
+        },
+        {
+            "source": "/api/(.*)", "destination": "/api" 
         }
     ] 
 }
