@@ -27,7 +27,7 @@ router.get(
   '/spotify/callback',
   passport.authenticate('spotify', {failureRedirect: '/login', session: false}),
   function (req: any, res) {
-    res.redirect(`/api/banner?token=${req.user.token}`);
+    res.redirect(`/api/widget?token=${req.user.token}`);
   }
 );
 

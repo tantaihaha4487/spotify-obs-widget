@@ -29,8 +29,8 @@ router.get('/current-playing', passport.authenticate('jwt', { session: false }),
 });
 
 
-router.get('/banner', (req: Request, res: Response) => {
-    res.render('banner.html');
+router.get('/widget', (req: Request, res: Response) => {
+    res.render('widget.html');
 });
 
 
