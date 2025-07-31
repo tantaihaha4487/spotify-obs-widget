@@ -8,7 +8,8 @@
     "start:ts": "ts-node src/app.ts",
     "start": "node dist/app.js",
     "build": "tsc",
-    "dev": "nodemon --watch src --exec ts-node src/app.ts"
+    "dev": "nodemon --watch src --exec ts-node src/app.ts",
+    "vercel-build": "tsc && copyfiles -u 1 \"src/views/**/*\" dist"
   },
   "keywords": [],
   "author": "",
@@ -43,6 +44,7 @@
     "@types/passport-local": "^1.0.38",
     "@types/passport-spotify": "^2.0.4",
     "@types/spotify-api": "^0.0.25",
+    "copyfiles": "^2.4.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   }
