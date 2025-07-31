@@ -46,6 +46,18 @@ nunjucks.configure(__dirname + '/views', { autoescape: true, express: app });
 app.engine('html', consolidate.nunjucks);
 app.set('view engine', 'html');
 
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    if (req.method === 'OPTIONS') {
+        res.status(200).end()
+        return
+      }
+    next();
+});
+
 // Handle error
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   let statusCode = err.status || 500
