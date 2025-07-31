@@ -6,26 +6,18 @@
   "devCommand": "npm run dev",
   "builds": [
     {
-      "src": "/dist/views/**",
-      "use": "@vercel/static"
-    },
-    {
       "src": "dist/app.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "dist/views/**",
+      "use": "@vercel/static"
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/css/(.*)",
-      "dest": "/dist/views/css/$1"
-    },
-    {
-      "src": "/widget.html",
-      "dest": "/dist/views/widget.html"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "dist/app.js"
+      "source": "/(.*)",
+      "destination": "/dist/app.js"
     }
   ]
 }
