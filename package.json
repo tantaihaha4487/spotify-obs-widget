@@ -9,7 +9,6 @@
     "start": "node dist/app.js",
     "build": "tsc",
     "dev": "nodemon --watch src --exec ts-node src/app.ts",
-    "vercel-build": "tsc && copyfiles -u 1 \"src/views/**/*\" dist"
   },
   "keywords": [],
   "author": "",
