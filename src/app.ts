@@ -46,6 +46,8 @@ nunjucks.configure(__dirname + '/views', { autoescape: true, express: app });
 app.engine('html', consolidate.nunjucks);
 app.set('view engine', 'html');
 
+app.use(express.static(__dirname + '/views'));
+
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', '*');

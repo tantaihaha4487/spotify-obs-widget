@@ -1,14 +1,16 @@
-{ 
-    "version": 2, 
-    "rewrites": [
-        {
-            "source": "/", "destination": "/" 
-        },
-        {
-            "source": "/auth/(.*)", "destination": "/auth" 
-        },
-        {
-            "source": "/api/(.*)", "destination": "/api" 
-        }
-    ] 
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
+  "builds": [
+    {
+      "src": "dist/app.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "dist/app.js"
+    }
+  ]  
 }
