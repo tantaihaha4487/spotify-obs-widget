@@ -8,5 +8,5 @@ export default function ensureAuthenticated(req: AuthenticatedRequest, res: Resp
     if (req.isAuthenticated()) {
         return next();
     }
-    res.redirect('/auth/login');
+    res.redirect('/');
 }

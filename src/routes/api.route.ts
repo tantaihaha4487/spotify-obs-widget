@@ -5,9 +5,9 @@ import passport from 'passport';
 
 const router = Router();
 
-router.get('/current-playing', passport.authenticate('jwt', { session: false }), async (req: AuthenticatedRequest, res: Response) => {
+router.get('/now-playing', passport.authenticate('jwt', { session: false }), async (req: AuthenticatedRequest, res: Response) => {
     if (!req.user || !req.user.accessToken) {
-        return res.redirect('/auth/login');
+        return res.redirect('/auth/spotify');
     }
 
     try {

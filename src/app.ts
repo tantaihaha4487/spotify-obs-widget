@@ -7,11 +7,9 @@ import nunjucks from "nunjucks";
 import { Strategy as SpotifyStrategy, Profile, VerifyCallback } from "passport-spotify";
 import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
 import jwt from 'jsonwebtoken';
-import mongoose from 'mongoose';
+import mongoose, { AnyArray } from 'mongoose';
 import indexRouter from './routes/index.route';
-import playerRouter from './routes/player.route';
 import authRouter from './routes/auth.route';
-import accountRouter from './routes/account.route';
 import apiRouter from './routes/api.route';
 import { User } from './models/user.model';
 
@@ -48,7 +46,13 @@ nunjucks.configure(__dirname + '/views', { autoescape: true, express: app });
 app.engine('html', consolidate.nunjucks);
 app.set('view engine', 'html');
 
-// Session configuration is updated for better security and performance.
+// Handle error
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  let statusCode = err.status || 500
+  res.status(statusCode)
+  res.render('index.html', { error: err })
+});
+
 app.use(
   session({
     secret: SESSION_SECRET,
@@ -61,8 +65,6 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.json())
-app.use(express.static(__dirname + '/public'));
-
 
 passport.serializeUser(function (user, done) {
   done(null, user);
@@ -72,8 +74,7 @@ passport.deserializeUser(function (obj: any, done) {
   done(null, obj);
 });
 
-// The Spotify strategy is configured to store tokens in the user's session,
-// not in global variables. This is crucial for handling multiple users correctly.
+
 passport.use(
   new SpotifyStrategy(
     {
@@ -133,8 +134,6 @@ passport.use(new JwtStrategy({
 }));
 
 app.use('/', indexRouter);
-app.use('/account', accountRouter);
-app.use('/player', playerRouter);
 app.use('/auth', authRouter);
 app.use('/api', apiRouter)
 
