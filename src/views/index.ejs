@@ -7,7 +7,6 @@
         <strong class="font-bold">Authentication failed.</strong>
         <span class="block sm:inline">Please try logging in again.</span>
     </div>
-<body class="w-screen h-screen overflow-hidden flex flex-col justify-center items-center gap-y-16 bg-gradient-to-bl from-[#0f172a] via-[#5e5ba6] to-[#0f172a]">
 
     <div>
         <span class="flex gap-2 items-center text-8xl text-white">
@@ -43,7 +42,11 @@
         <p class="text-2xl"><%= user.emails[0].value %></p>
     </div>
     
+    
     <div class="w-full max-w-sm">
+        <div class="mb-2 flex justify-between items-center">
+            <label for="website-url" class="text-sm font-medium text-gray-900 dark:text-white">Verify your website:</label>
+        </div>
         <div class="flex items-center">
             <span class="shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 rounded-s-lg dark:bg-gray-600 dark:text-white dark:border-gray-600">URL</span>
             <div class="relative w-full">
@@ -67,35 +70,47 @@
                 <div class="tooltip-arrow" data-popper-arrow></div>
             </div>
         </div>
-        <p id="helper-text-explanation" class="mt-2 text-sm text-gray-500 dark:text-gray-400">Paste it in your OBS.</p>
+        <p id="helper-text-explanation" class="mt-2 text-sm text-gray-500 dark:text-gray-400">Security certificate is required for approval</p>
     </div>
+
     <script>
-        const copyButton = document.querySelector('[data-copy-to-clipboard-target]');
-        const targetEl = document.getElementById(copyButton.dataset.copyToClipboardTarget);
-        const defaultIcon = document.getElementById('default-icon');
-        const successIcon = document.getElementById('success-icon');
-        const defaultTooltipMessage = document.getElementById('default-tooltip-message');
-        const successTooltipMessage = document.getElementById('success-tooltip-message');
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('[data-copy-to-clipboard-target]').forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetId = button.dataset.copyToClipboardTarget;
+                    const targetEl = document.getElementById(targetId);
+                    
+                    if (!targetEl) return;
 
-        copyButton.addEventListener('click', () => {
-            targetEl.select();
-            document.execCommand('copy');
+                    navigator.clipboard.writeText(targetEl.value).then(() => {
+                        const defaultIcon = button.querySelector('#default-icon');
+                        const successIcon = button.querySelector('#success-icon');
+                        const tooltipId = button.dataset.tooltipTarget;
+                        const tooltip = document.getElementById(tooltipId);
+                        
+                        if (!tooltip) return;
 
-            // Change icon
-            defaultIcon.classList.add('hidden');
-            successIcon.classList.remove('hidden');
+                        const defaultTooltipMessage = tooltip.querySelector('#default-tooltip-message');
+                        const successTooltipMessage = tooltip.querySelector('#success-tooltip-message');
 
-            // Change tooltip message
-            defaultTooltipMessage.classList.add('hidden');
-            successTooltipMessage.classList.remove('hidden');
+                        if (defaultIcon && successIcon) {
+                            defaultIcon.classList.add('hidden');
+                            successIcon.classList.remove('hidden');
+                        }
+                        if (defaultTooltipMessage && successTooltipMessage) {
+                            defaultTooltipMessage.classList.add('hidden');
+                            successTooltipMessage.classList.remove('hidden');
+                        }
 
-            // Reset after 2 seconds
-            setTimeout(() => {
-                defaultIcon.classList.remove('hidden');
-                successIcon.classList.add('hidden');
-                defaultTooltipMessage.classList.remove('hidden');
-                successTooltipMessage.classList.add('hidden');
-            }, 2000);
+                        setTimeout(() => {
+                            if (defaultIcon) defaultIcon.classList.remove('hidden');
+                            if (successIcon) successIcon.classList.add('hidden');
+                            if (defaultTooltipMessage) defaultTooltipMessage.classList.remove('hidden');
+                            if (successTooltipMessage) successTooltipMessage.classList.add('hidden');
+                        }, 2000);
+                    }).catch(err => console.error('Failed to copy text: ', err));
+                });
+            });
         });
     </script>
 </body>
