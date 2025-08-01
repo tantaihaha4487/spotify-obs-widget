@@ -7,10 +7,7 @@
     }
   ],
   "routes": [
-    { "src": "/css/(.*)", "dest": "src/views/css/$1" },
-    { "src": "/api/.*", "dest": "src/app.js" },
-    { "src": "/auth/.*", "dest": "src/app.ts" },
-    { "src": "/api/widget/.*", "dest": "src/app.ts" },
-    { "src": "/.*", "dest": "src/app.ts" }
+    { "src": "/css/(.*)", "dest": "/src/views/css/$1" },
+    { "src": "/(.*)", "dest": "/src/app.ts" }
   ]
 }
