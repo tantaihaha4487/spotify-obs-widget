@@ -18,6 +18,7 @@
         </div>
     </div>
 
+    <p id="debug" style="font-size: 11px; color: #888; margin-top: 8px; font-family: monospace;">Loading...</p>
     <script>
         const params = new URLSearchParams(window.location.search);
         const refreshToken = params.get('refresh_token');
@@ -26,16 +27,26 @@
         async function updateNowPlaying() {
             if (!refreshToken) {
                 console.error("No refresh token provided");
+                document.getElementById('debug').textContent = 'Error: No refresh token in URL';
                 return;
             }
 
             try {
+                document.getElementById('debug').textContent = 'Fetching...';
                 const res = await fetch(`/api/now-playing?refresh_token=${refreshToken}`);
                 const data = await res.json();
                 
+                console.log('API response:', JSON.stringify(data));
                 const widget = document.getElementById('widget');
                 
-                if (!res.ok || data.error || !data.isPlaying) {
+                if (!res.ok || data.error) {
+                    document.getElementById('debug').textContent = 'API error: ' + (data.error || res.status);
+                    widget.classList.remove('visible');
+                    return;
+                }
+
+                if (!data.isPlaying) {
+                    document.getElementById('debug').textContent = 'Nothing playing right now';
                     widget.classList.remove('visible');
                     return;
                 }
@@ -44,6 +55,7 @@
                 
                 document.getElementById('track-name').textContent = data.track;
                 document.getElementById('artist-name').textContent = data.artist;
+                document.getElementById('debug').textContent = 'Playing: ' + data.track;
                 
                 if (currentTrackId !== trackIdentifier) {
                     document.getElementById('album-art').src = data.albumImage || '';
@@ -57,6 +69,7 @@
                 
             } catch (e) {
                 console.error('Failed to fetch now playing', e);
+                document.getElementById('debug').textContent = 'Fetch error: ' + e.message;
                 document.getElementById('widget').classList.remove('visible');
             }
         }

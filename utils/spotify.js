@@ -61,12 +61,14 @@ async function refreshToken(refreshToken) {
                 'refresh_token': refreshToken
             })
         });
-        if (!response.ok) {
-            throw new Error('Failed to refresh token');
-        }
         const data = await response.json();
+        if (!response.ok) {
+            console.error('Spotify refresh token error:', JSON.stringify(data));
+            return { error: data.error_description || data.error || 'Failed to refresh token' };
+        }
         return { access_token: data.access_token };
     } catch (error) {
+        console.error('Refresh token exception:', error);
         return { error: error.message };
     }
 }
