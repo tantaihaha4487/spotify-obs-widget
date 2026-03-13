@@ -1,0 +1,93 @@
+require('dotenv').config();
+const crypto = require('crypto');
+const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URI } = process.env;
+
+function generateRandomString(length) {
+    return crypto.randomBytes(length).toString('hex');
+}
+
+async function exchangeCode(code) {
+    try {
+        const response = await fetch('https://accounts.spotify.com/api/token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Authorization': `Basic ${Buffer.from(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`).toString('base64')}`
+            },
+            body: new URLSearchParams({
+                'grant_type': 'authorization_code',
+                'code': code,
+                'redirect_uri': SPOTIFY_REDIRECT_URI
+            })
+        });
+        if (!response.ok) {
+            throw new Error('Failed to exchange code for token');
+        }
+        const data = await response.json();
+        return {
+            access_token: data.access_token,
+            refresh_token: data.refresh_token,
+            expires_in: data.expires_in
+        };
+    } catch (error) {
+        return { error: error.message };
+    }
+}
+
+async function refreshToken(refreshToken) {
+    try {
+        const response = await fetch('https://accounts.spotify.com/api/token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Authorization': `Basic ${Buffer.from(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`).toString('base64')}`
+            },
+            body: new URLSearchParams({
+                'grant_type': 'refresh_token',
+                'refresh_token': refreshToken
+            })
+        });
+        if (!response.ok) {
+            throw new Error('Failed to refresh token');
+        }
+        const data = await response.json();
+        return { access_token: data.access_token };
+    } catch (error) {
+        return { error: error.message };
+    }
+}
+
+async function getNowPlaying(accessToken) {
+    try {
+        const response = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        });
+        if (response.status === 204) {
+            return { isPlaying: false };
+        }
+        if (!response.ok) {
+            throw new Error('Failed to fetch now playing');
+        }
+        const data = await response.json();
+        return {
+            isPlaying: data.is_playing,
+            track: data.item?.name,
+            artist: data.item?.artists?.map(a => a.name).join(', '),
+            album: data.item?.album?.name,
+            albumImage: data.item?.album?.images?.[0]?.url,
+            progress: data.progress_ms,
+            duration: data.item?.duration_ms
+        };
+    } catch (error) {
+        return { error: error.message };
+    }
+}
+
+module.exports = {
+    generateRandomString,
+    exchangeCode,
+    refreshToken,
+    getNowPlaying
+};
