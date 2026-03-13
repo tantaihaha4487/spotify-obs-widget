@@ -15,6 +15,11 @@ function generateRandomString(length) {
 
 async function exchangeCode(code) {
     try {
+        const redirectUri = ensureHttps(SPOTIFY_REDIRECT_URI);
+        console.log('Token exchange - redirect_uri:', redirectUri);
+        console.log('Token exchange - client_id present:', !!SPOTIFY_CLIENT_ID);
+        console.log('Token exchange - client_secret present:', !!SPOTIFY_CLIENT_SECRET);
+        
         const response = await fetch('https://accounts.spotify.com/api/token', {
             method: 'POST',
             headers: {
@@ -24,19 +29,21 @@ async function exchangeCode(code) {
             body: new URLSearchParams({
                 'grant_type': 'authorization_code',
                 'code': code,
-                'redirect_uri': ensureHttps(SPOTIFY_REDIRECT_URI)
+                'redirect_uri': redirectUri
             })
         });
-        if (!response.ok) {
-            throw new Error('Failed to exchange code for token');
-        }
         const data = await response.json();
+        if (!response.ok) {
+            console.error('Spotify token error:', JSON.stringify(data));
+            return { error: data.error_description || data.error || 'Failed to exchange code for token' };
+        }
         return {
             access_token: data.access_token,
             refresh_token: data.refresh_token,
             expires_in: data.expires_in
         };
     } catch (error) {
+        console.error('Exchange code exception:', error);
         return { error: error.message };
     }
 }
