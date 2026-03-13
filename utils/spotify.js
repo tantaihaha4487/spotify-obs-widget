@@ -2,6 +2,13 @@ require('dotenv').config();
 const crypto = require('crypto');
 const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URI } = process.env;
 
+function ensureHttps(uri) {
+    if (uri && !uri.startsWith('http://') && !uri.startsWith('https://')) {
+        return 'https://' + uri;
+    }
+    return uri;
+}
+
 function generateRandomString(length) {
     return crypto.randomBytes(length).toString('hex');
 }
@@ -17,7 +24,7 @@ async function exchangeCode(code) {
             body: new URLSearchParams({
                 'grant_type': 'authorization_code',
                 'code': code,
-                'redirect_uri': SPOTIFY_REDIRECT_URI
+                'redirect_uri': ensureHttps(SPOTIFY_REDIRECT_URI)
             })
         });
         if (!response.ok) {

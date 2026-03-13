@@ -5,6 +5,13 @@ require("dotenv").config();
 const port = process.env.PORT || 8067;
 const app = express();
 
+function ensureHttps(uri) {
+    if (uri && !uri.startsWith('http://') && !uri.startsWith('https://')) {
+        return 'https://' + uri;
+    }
+    return uri;
+}
+
 app.get("/", (req, res) => {
     res.send(`
         <h1>Spotify Status Widget</h1>
@@ -21,7 +28,7 @@ app.get("/login", (req, res) => {
             response_type: 'code',
             client_id: process.env.SPOTIFY_CLIENT_ID,
             scope: scope,
-            redirect_uri: process.env.SPOTIFY_REDIRECT_URI,
+            redirect_uri: ensureHttps(process.env.SPOTIFY_REDIRECT_URI),
             state: state
         }));
 });
