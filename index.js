@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require("path");
 const spotifyUtils = require("./utils/spotify.js");
 require("dotenv").config();
 
@@ -13,7 +14,7 @@ function ensureHttps(uri) {
 }
 
 // Serve static files from the 'public' directory
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.get("/login", (req, res) => {
     const state = spotifyUtils.generateRandomString(16);
@@ -83,3 +84,6 @@ app.get("/api/now-playing", async (req, res) => {
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
+
+// Export for Vercel serverless
+module.exports = app;
