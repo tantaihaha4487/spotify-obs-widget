@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Success - Spotify OBS Widget</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="container">
+        <svg viewBox="0 0 24 24" width="64" height="64" fill="var(--primary-color)" style="margin-bottom: 20px;">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+        </svg>
+        <h1 id="status-title">Creating Your Widget...</h1>
+        <div id="content" style="display: none;">
+            <p>Copy the URL below and add it as a <strong>Browser Source</strong> in OBS. Recommended dimensions: 400x120.</p>
+            
+            <div class="url-box" id="widget-url"></div>
+            
+            <button class="btn" onclick="copyUrl()" id="copy-btn">Copy URL</button>
+        </div>
+        <div id="error" style="display: none; color: #e74c3c;"></div>
+
+        <script>
+            // On load, get code from URL params and exchange it via our backend API
+            const params = new URLSearchParams(window.location.search);
+            const code = params.get('code');
+            const urlError = params.get('error');
+
+            const contentDiv = document.getElementById('content');
+            const errorDiv = document.getElementById('error');
+            const titleEl = document.getElementById('status-title');
+
+            if (urlError) {
+                showError('Access denied by Spotify');
+            } else if (!code) {
+                showError('No authorization code provided.');
+            } else {
+                exchangeToken(code);
+            }
+
+            async function exchangeToken(code) {
+                try {
+                    const res = await fetch('/api/token-exchange?code=' + encodeURIComponent(code));
+                    const data = await res.json();
+                    
+                    if (!res.ok || data.error) {
+                        throw new Error(data.error || 'Failed to exchange token');
+                    }
+
+                    // Success!
+                    titleEl.innerText = 'Login Successful!';
+                    errorDiv.style.display = 'none';
+                    contentDiv.style.display = 'block';
+
+                    const widgetUrl = `/widget.html?refresh_token=${data.refresh_token}`;
+                    const fullUrl = window.location.origin + widgetUrl;
+                    document.getElementById('widget-url').innerText = fullUrl;
+                    
+                    window.fullWidgetUrl = fullUrl; // Save for copy button
+                } catch (e) {
+                    showError('Error: ' + e.message);
+                }
+            }
+
+            function showError(msg) {
+                titleEl.innerText = 'Authentication Failed';
+                contentDiv.style.display = 'none';
+                errorDiv.style.display = 'block';
+                errorDiv.innerText = msg;
+            }
+
+            function copyUrl() {
+                if (!window.fullWidgetUrl) return;
+                navigator.clipboard.writeText(window.fullWidgetUrl).then(() => {
+                    const btn = document.getElementById('copy-btn');
+                    btn.innerText = 'Copied!';
+                    btn.style.backgroundColor = '#1ed760';
+                    setTimeout(() => {
+                        btn.innerText = 'Copy URL';
+                    }, 2000);
+                });
+            }
+        </script>
+    </div>
+</body>
+</html>

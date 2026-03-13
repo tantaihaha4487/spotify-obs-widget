@@ -12,12 +12,8 @@ function ensureHttps(uri) {
     return uri;
 }
 
-app.get("/", (req, res) => {
-    res.send(`
-        <h1>Spotify Status Widget</h1>
-        <a href="/login">Login with Spotify</a>
-    `);
-});
+// Serve static files from the 'public' directory
+app.use(express.static('public'));
 
 app.get("/login", (req, res) => {
     const state = spotifyUtils.generateRandomString(16);
@@ -33,12 +29,22 @@ app.get("/login", (req, res) => {
         }));
 });
 
-app.get("/callback", async (req, res) => {
-    const code = req.query.code || null;
-    const error = req.query.error || null;
+app.get("/callback", (req, res) => {
+    // Redirect cleanly to the static success page to handle tokens frontend-side
+    const code = req.query.code || '';
+    const error = req.query.error || '';
     
     if (error) {
-        return res.status(400).json({ error: 'Access denied' });
+        res.redirect(`/success.html?error=${encodeURIComponent(error)}`);
+    } else {
+        res.redirect(`/success.html?code=${encodeURIComponent(code)}`);
+    }
+});
+
+app.get("/api/token-exchange", async (req, res) => {
+    const code = req.query.code;
+    if (!code) {
+        return res.status(400).json({ error: 'Code is required' });
     }
     
     try {
@@ -46,35 +52,33 @@ app.get("/callback", async (req, res) => {
         if (tokenData.error) {
             return res.status(500).json({ error: tokenData.error });
         }
-        res.json({ 
-            message: 'Login successful!',
-            access_token: tokenData.access_token,
-            refresh_token: tokenData.refresh_token,
-            expires_in: tokenData.expires_in
-        });
+        res.json(tokenData);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
 app.get("/api/now-playing", async (req, res) => {
-    const authHeader = req.headers.authorization;
+    const refreshToken = req.query.refresh_token;
     
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ error: 'Access token required. Please login first.' });
+    if (!refreshToken) {
+        return res.status(401).json({ error: 'Refresh token required' });
     }
     
-    const accessToken = authHeader.split(' ')[1];
-    
     try {
-        const nowPlaying = await spotifyUtils.getNowPlaying(accessToken);
+        // Get a fresh access token using the refresh token
+        const tokenData = await spotifyUtils.refreshToken(refreshToken);
+        if (tokenData.error) {
+             return res.status(401).json({ error: 'Failed to refresh token: ' + tokenData.error });
+        }
+
+        // Fetch now playing info using the fresh access token
+        const nowPlaying = await spotifyUtils.getNowPlaying(tokenData.access_token);
         res.json(nowPlaying);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
-
-
 
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);

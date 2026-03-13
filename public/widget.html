@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Now Playing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body style="background: transparent; min-height: auto; padding: 0;">
+    <div class="widget-container" id="widget">
+        <img id="album-art" class="album-art" src="" alt="Album Art">
+        <div class="info-container">
+            <p id="track-name" class="track-name"></p>
+            <p id="artist-name" class="artist-name"></p>
+            <div class="progress-bar-container">
+                <div id="progress-bar" class="progress-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const refreshToken = params.get('refresh_token');
+        let currentTrackId = null;
+
+        async function updateNowPlaying() {
+            if (!refreshToken) {
+                console.error("No refresh token provided");
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/now-playing?refresh_token=${refreshToken}`);
+                const data = await res.json();
+                
+                const widget = document.getElementById('widget');
+                
+                if (!res.ok || data.error || !data.isPlaying) {
+                    widget.classList.remove('visible');
+                    return;
+                }
+
+                const trackIdentifier = data.track + '-' + data.artist;
+                
+                document.getElementById('track-name').textContent = data.track;
+                document.getElementById('artist-name').textContent = data.artist;
+                
+                if (currentTrackId !== trackIdentifier) {
+                    document.getElementById('album-art').src = data.albumImage || '';
+                    currentTrackId = trackIdentifier;
+                }
+
+                const progressPercent = (data.progress / data.duration) * 100;
+                document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+
+                widget.classList.add('visible');
+                
+            } catch (e) {
+                console.error('Failed to fetch now playing', e);
+                document.getElementById('widget').classList.remove('visible');
+            }
+        }
+
+        setInterval(updateNowPlaying, 2000);
+        updateNowPlaying();
+    </script>
+</body>
+</html>
