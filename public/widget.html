@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <title>Now Playing</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/style.css">
 </head>
+
 <body style="background: transparent; min-height: auto; padding: 0;">
     <div class="widget-container" id="widget">
         <img id="album-art" class="album-art" src="" alt="Album Art">
@@ -35,10 +37,10 @@
                 document.getElementById('debug').textContent = 'Fetching...';
                 const res = await fetch(`/api/now-playing?refresh_token=${refreshToken}`);
                 const data = await res.json();
-                
+
                 console.log('API response:', JSON.stringify(data));
                 const widget = document.getElementById('widget');
-                
+
                 if (!res.ok || data.error) {
                     document.getElementById('debug').textContent = 'API error: ' + (data.error || res.status);
                     widget.classList.remove('visible');
@@ -52,11 +54,11 @@
                 }
 
                 const trackIdentifier = data.track + '-' + data.artist;
-                
+
                 document.getElementById('track-name').textContent = data.track;
                 document.getElementById('artist-name').textContent = data.artist;
                 document.getElementById('debug').textContent = 'Playing: ' + data.track;
-                
+
                 if (currentTrackId !== trackIdentifier) {
                     document.getElementById('album-art').src = data.albumImage || '';
                     currentTrackId = trackIdentifier;
@@ -66,7 +68,7 @@
                 document.getElementById('progress-bar').style.width = `${progressPercent}%`;
 
                 widget.classList.add('visible');
-                
+
             } catch (e) {
                 console.error('Failed to fetch now playing', e);
                 document.getElementById('debug').textContent = 'Fetch error: ' + e.message;
@@ -74,8 +76,9 @@
             }
         }
 
-        setInterval(updateNowPlaying, 2000);
+        setInterval(updateNowPlaying, 10 * 1000);
         updateNowPlaying();
     </script>
 </body>
+
 </html>

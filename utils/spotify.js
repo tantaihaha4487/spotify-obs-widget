@@ -75,16 +75,21 @@ async function refreshToken(refreshToken) {
 
 async function getNowPlaying(accessToken) {
     try {
+        console.log('getNowPlaying - token starts with:', accessToken?.substring(0, 10));
         const response = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
             headers: {
                 'Authorization': `Bearer ${accessToken}`
             }
         });
+        console.log('getNowPlaying - status:', response.status);
         if (response.status === 204) {
             return { isPlaying: false };
         }
         if (!response.ok) {
-            throw new Error('Failed to fetch now playing');
+            let errorBody = '';
+            try { errorBody = await response.text(); } catch(e) {}
+            console.error('getNowPlaying error:', response.status, errorBody);
+            return { error: `Spotify API ${response.status}: ${errorBody}` };
         }
         const data = await response.json();
         return {
@@ -97,6 +102,7 @@ async function getNowPlaying(accessToken) {
             duration: data.item?.duration_ms
         };
     } catch (error) {
+        console.error('getNowPlaying exception:', error);
         return { error: error.message };
     }
 }
